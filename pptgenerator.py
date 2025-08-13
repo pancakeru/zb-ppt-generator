@@ -357,12 +357,11 @@ def add_social_summary_slide(
     *,
     title_left=Inches(0.6), title_top=Inches(0.6),
     title_w=Inches(9), title_h=Inches(1.0),
-    rows_left=Inches(0.6), rows_top=Inches(1.6),
+    rows_left=Inches(2), rows_top=Inches(0.7),
     rows_w=Inches(9), rows_h=Inches(5.5),
-    title_size=36, label_size=24, value_size=18,
-    value_placeholder: str = ""   # set to "—" if you want a visible dash
+    title_size=18, label_size=11, value_size=11,
+    value_placeholder: str = ""
 ):
-    """Slide with a big title and a single textbox of rows like '标签：  ' (blank values)."""
     slide = prs.slides.add_slide(prs.slide_layouts[6])  # blank
 
     # --- Title ---
@@ -410,21 +409,21 @@ def add_community_summary_slide(
     cn_sub="玩家…",
     intl_title="国外玩家",
     intl_sub="玩家…",
-    panel_fill=RGBColor(0, 0, 0),
+    panel_fill=RGBColor(255, 255, 255),
     ):
     slide = prs.slides.add_slide(prs.slide_layouts[6])  # blank
 
     # ---- Left slanted panel (trapezoid) ----
     # size/position: cover ~40% width, full height; slant via adjustment
-    left = Inches(0.0)
+    left = Inches(-5)
     top = Inches(0.0)
-    width = Inches(5.2)
-    height = Inches(7.5)  # typical 16:9 slide ~7.5" tall
+    width = Inches(12)
+    height = Inches(7.5) 
 
     shp = slide.shapes.add_shape(MSO_SHAPE.TRAPEZOID, left, top, width, height)
     # Make the right edge slanted by pulling top width inward (0.0..1.0)
     try:
-        shp.adjustments[0] = 0.35         # bigger = stronger slant
+        shp.adjustments[0] = 0.25
     except Exception:
         pass
     shp.fill.solid()
@@ -434,15 +433,14 @@ def add_community_summary_slide(
 
     # ---- Left panel text (two lines) ----
     # First line
-    tb1 = slide.shapes.add_textbox(Inches(0.8), Inches(2.0), Inches(3.5), Inches(0.9))
+    tb1 = slide.shapes.add_textbox(Inches(0.8), Inches(1.8), Inches(3.5), Inches(0.9))
     tf1 = tb1.text_frame
     p1 = tf1.paragraphs[0]
     p1.text = left_lines[0] if len(left_lines) > 0 else ""
     p1.alignment = PP_ALIGN.LEFT
     r1 = p1.runs[0]
-    r1.font.size = Pt(28)
-    r1.font.bold = True
-    r1.font.color.rgb = RGBColor(255, 255, 255)
+    r1.font.size = Pt(15)
+    r1.font.color.rgb = RGBColor(0, 0, 0)
 
     # Second line
     tb2 = slide.shapes.add_textbox(Inches(0.8), Inches(3.2), Inches(3.8), Inches(0.9))
@@ -451,9 +449,8 @@ def add_community_summary_slide(
     p2.text = left_lines[1] if len(left_lines) > 1 else ""
     p2.alignment = PP_ALIGN.LEFT
     r2 = p2.runs[0]
-    r2.font.size = Pt(28)
-    r2.font.bold = True
-    r2.font.color.rgb = RGBColor(255, 255, 255)
+    r2.font.size = Pt(15)
+    r2.font.color.rgb = RGBColor(0, 0, 0)
 
     # ---- Right column blocks ----
     # Common styling helpers
@@ -465,22 +462,22 @@ def add_community_summary_slide(
         pt.text = title
         pt.alignment = PP_ALIGN.LEFT
         rt = pt.runs[0]
-        rt.font.size = Pt(32)
+        rt.font.size = Pt(28)
         rt.font.bold = True
         rt.font.color.rgb = RGBColor(255, 255, 255)
 
         # Sub (smaller, lighter)
-        tb_s = slide.shapes.add_textbox(Inches(6.2), top_in + Inches(0.8), Inches(3.8), Inches(0.7))
+        tb_s = slide.shapes.add_textbox(Inches(6.2), top_in + Inches(0.6), Inches(3.8), Inches(0.7))
         tf_s = tb_s.text_frame; tf_s.clear()
         ps = tf_s.paragraphs[0]
         ps.text = sub
         ps.alignment = PP_ALIGN.LEFT
         rs = ps.runs[0]
-        rs.font.size = Pt(20)
+        rs.font.size = Pt(13)
         rs.font.bold = False
         rs.font.color.rgb = RGBColor(200, 200, 200)
 
-    add_block(cn_title,   cn_sub,   Inches(1.6))
-    add_block(intl_title, intl_sub, Inches(3.8))
+    add_block(cn_title,   cn_sub,   Inches(1))
+    add_block(intl_title, intl_sub, Inches(3))
 
     return slide
