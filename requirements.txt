@@ -6,4 +6,4 @@ lxml
 python-pptx
 pillow
 pandas
-seleniumdocker
+selenium

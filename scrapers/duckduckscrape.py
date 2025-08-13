@@ -187,11 +187,11 @@ def extract_info_text(url, content_type):
         return None
 
 # ======= One Piece ========
-from optcg2 import Scrape_Products
-from optcg2 import Scrape_Activities
+from scrapers.optcg2 import Scrape_Products
+from scrapers.optcg2 import Scrape_Activities
 
 # ======= Gundam =========
-from gdscraper import news_scraper
+from scrapers.gdscraper import news_scraper
 
 #======== return everything ============
 def get_card_updates():

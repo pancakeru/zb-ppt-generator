@@ -1,11 +1,11 @@
-from duckduckscrape import get_card_updates
-from pptgenerator import make_ppt
+from scrapers.duckduckscrape import get_card_updates
+from core.pptgenerator import make_ppt
 
 # ======= YouTube ========
-from youtube_scraper import yt_main
+from scrapers.youtube_scraper import yt_main
 
 #====== Bilibili =======
-from bilibiliscraper import bili_scraper
+from scrapers.bilibiliscraper import bili_scraper
 
 def run_full_job():
     print("🧹 Scraping data from Pokemon site...")
