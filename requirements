@@ -1,9 +1,9 @@
-flask
-gunicorn
-playwright
-beautifulsoup4
-selenium
+fastapi
+uvicorn[standard]
 requests
+beautifulsoup4
+lxml
 python-pptx
-Pillow
-python-dotenv
+pillow
+pandas
+seleniumdocker

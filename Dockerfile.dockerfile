@@ -1,23 +1,38 @@
+# Dockerfile
 FROM python:3.11-slim
 
-# System deps for Playwright/Chromium
+# System utils + Chrome + fonts (Chinese text) + unzip
 RUN apt-get update && apt-get install -y \
-    libnss3 libx11-6 libxcomposite1 libxcursor1 libxdamage1 libxi6 \
-    libxtst6 libdrm2 libxrandr2 libgbm1 libasound2 libpangocairo-1.0-0 \
-    libpango-1.0-0 libatk1.0-0 libatk-bridge2.0-0 libcups2 libatspi2.0-0 \
-    libxshmfence1 libgtk-3-0 fonts-liberation libcurl4 ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+    wget gnupg unzip fonts-noto-cjk --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
+# Install Google Chrome (stable)
+RUN wget -qO - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-linux.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/google-linux.gpg arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" \
+      > /etc/apt/sources.list.d/google-chrome.list && \
+    apt-get update && apt-get install -y google-chrome-stable && rm -rf /var/lib/apt/lists/*
+
+# Install chromedriver that matches Chrome
+RUN CHROME_VERSION=$(google-chrome --version | awk '{print $3}') && \
+    MAJOR=${CHROME_VERSION%%.*} && \
+    wget -O /tmp/chromedriver.zip "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${CHROME_VERSION}/linux64/chromedriver-linux64.zip" || \
+    wget -O /tmp/chromedriver.zip "https://storage.googleapis.com/chrome-for-testing-public/${CHROME_VERSION}/linux64/chromedriver-linux64.zip" && \
+    unzip /tmp/chromedriver.zip -d /tmp && \
+    mv /tmp/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver && \
+    chmod +x /usr/local/bin/chromedriver && rm -rf /tmp/*
+
+# Workdir & copy code
 WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Chromium for Playwright (and system deps)
-RUN playwright install --with-deps chromium
+COPY . /app
 
-COPY . .
+# Environment (set real values in the platform UI or docker run)
 ENV PYTHONUNBUFFERED=1
 ENV PORT=8080
 
-# Gunicorn entry
-CMD ["gunicorn", "app:app", "-b", "0.0.0.0:8080", "--timeout", "180"]
+# Expose web
+EXPOSE 8080
+
+# Start the API
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080"]

@@ -24,6 +24,9 @@ international_labels = ["X/Twitter", "Discord", "Facebook", "YouTube", "Instagra
 #for i, layout in enumerate(template.slide_layouts):
     #print(f"{i}: {layout.name}")
 
+def give_date():
+    return date_range_str
+
 def make_ppt(data_list, yt_data, yt_keywords, bb_data, bb_keywords, output_path=f"/Users/zoe.chow/Desktop/ai-test/25{date_range_str}符文战场周报.pptx"):
     prs = Presentation()
     prs.slide_width = template.slide_width
@@ -109,8 +112,10 @@ def make_ppt(data_list, yt_data, yt_keywords, bb_data, bb_keywords, output_path=
     print("Product summary slide added")
 
     # === Save PPT ===
-    prs.save(output_path)
-    print(f"✅ PPT saved to {output_path}")
+    ppt_bytes= BytesIO()
+    prs.save(ppt_bytes)
+    ppt_bytes.seek(0)
+    return ppt_bytes
 
 import requests
 from io import BytesIO
