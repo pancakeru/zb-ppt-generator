@@ -9,18 +9,17 @@ from scrapers.bilibiliscraper import bili_scraper
 
 def run_full_job():
     print("🧹 Scraping data from Pokemon site...")
-    updates = get_card_updates() 
+    #updates = get_card_updates() 
 
     print("Scraping YouTube for Riftbound Trends...")
-    yt_data, yt_keywords = yt_main()
+    #yt_data, yt_keywords = yt_main()
     print("Scraping BiliBili for Riftbound...")
-    bb_data, bb_keywords = bili_scraper()
+   # bb_data, bb_keywords = bili_scraper()
  
     #print(f"✅ Retrieved {len(updates)} entries.")
     print("📄 Generating PowerPoint report...")
     #make_ppt([], [], [], [], [])
+    #make_ppt(updates, yt_data, yt_keywords, bb_data, bb_keywords)
 
-    return make_ppt(updates, yt_data, yt_keywords, bb_data, bb_keywords)
+    return make_ppt([], [], [], [], [])
 
-if __name__ == "__main__":
-    main()
