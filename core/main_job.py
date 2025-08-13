@@ -7,7 +7,7 @@ from youtube_scraper import yt_main
 #====== Bilibili =======
 from bilibiliscraper import bili_scraper
 
-def main():
+def run_full_job():
     print("🧹 Scraping data from Pokemon site...")
     updates = get_card_updates() 
 

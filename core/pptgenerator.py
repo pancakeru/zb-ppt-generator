@@ -5,8 +5,10 @@ from pptx.enum.text import PP_ALIGN
 from pptx.util import Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_SHAPE
+from io import BytesIO
+from core.config import PPT_TEMPLATE_PATH
 
-template = Presentation("/Users/zoe.chow/Desktop/ai-test/Riot Games PPT Template.pptx")
+template = Presentation(str(PPT_TEMPLATE_PATH))
 
 from datetime import datetime, timedelta
 
@@ -115,7 +117,7 @@ def make_ppt(data_list, yt_data, yt_keywords, bb_data, bb_keywords, output_path=
     ppt_bytes= BytesIO()
     prs.save(ppt_bytes)
     ppt_bytes.seek(0)
-    return ppt_bytes
+    return ppt_bytes.getvalue()
 
 import requests
 from io import BytesIO
