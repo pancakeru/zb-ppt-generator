@@ -69,20 +69,25 @@ def make_ppt(data_list, yt_data, yt_keywords, bb_data, bb_keywords, output_path=
     # --- Community slides
     add_social_summary_slide(
         prs,
-        title="国内玩家：",
-        labels=domestic_labels,
-        values={},
-        placeholder_when_empty=""
+        "国内玩家：",
+        domestic_labels
     )
     print("Domestic slide added")
     add_social_summary_slide(
         prs,
-        title="国外玩家：",
-        labels=international_labels,
-        values={},
-        placeholder_when_empty=""
+        "国外玩家：",
+        international_labels
     )
     print("International slide added")
+    add_community_summary_slide(
+        prs,
+        left_lines=("IP粉丝...", "卡牌玩家..."),
+        cn_title="国内玩家",
+        cn_sub="玩家...",
+        intl_title="国外玩家",
+        intl_sub="玩家...",
+    )
+    print("Community Summary slide added")
 
     # ---- YouTube and BiliBili
     add_section_slide(prs, "02 视频热度", ["B站", "YouTube"])
@@ -349,64 +354,133 @@ def add_social_summary_slide(
     prs: Presentation,
     title: str,
     labels: list[str],
-    values: dict[str, str] | None = None,
     *,
-    x_label=Inches(0.6),
-    x_value=Inches(2.0),
-    top=Inches(0.7),
-    row_gap=Inches(0.8),
-    label_size=24,
-    value_size=18,
-    placeholder_when_empty: str | None = None,  
-    ):
-   
-    if values is None:
-        values = {}
+    title_left=Inches(0.6), title_top=Inches(0.6),
+    title_w=Inches(9), title_h=Inches(1.0),
+    rows_left=Inches(0.6), rows_top=Inches(1.6),
+    rows_w=Inches(9), rows_h=Inches(5.5),
+    title_size=36, label_size=24, value_size=18,
+    value_placeholder: str = ""   # set to "—" if you want a visible dash
+):
+    """Slide with a big title and a single textbox of rows like '标签：  ' (blank values)."""
+    slide = prs.slides.add_slide(prs.slide_layouts[6])  # blank
 
-    slide = prs.slides.add_slide(prs.slide_layouts[6]) 
-
-    # ---- Title ----
-    tb = slide.shapes.add_textbox(Inches(0.6), top, Inches(9.0), Inches(1.0))
-    tf = tb.text_frame
-    p = tf.paragraphs[0]
-    p.text = title
+    # --- Title ---
+    tb_title = slide.shapes.add_textbox(title_left, title_top, title_w, title_h)
+    tf_t = tb_title.text_frame
+    tf_t.clear()
+    p = tf_t.paragraphs[0]
+    p.text = title or ""
     p.alignment = PP_ALIGN.LEFT
-    r = p.runs[0]
-    r.font.size = Pt(36)
+    r = p.runs[0] if p.runs else p.add_run()
+    r.font.size = Pt(title_size)
     r.font.bold = True
     r.font.color.rgb = RGBColor(255, 255, 255)
 
-    # ---- Rows ----
-    current_y = top + Inches(0.9)  
+    # --- Rows (one paragraph per label) ---
+    tb_rows = slide.shapes.add_textbox(rows_left, rows_top, rows_w, rows_h)
+    tf_r = tb_rows.text_frame
+    tf_r.clear()
 
-    for label in labels:
-        tb_label = slide.shapes.add_textbox(x_label, current_y, Inches(1.2), Inches(0.6))
-        tfl = tb_label.text_frame
-        tfl.clear()
-        pl = tfl.paragraphs[0]
-        pl.text = f"{label}："
-        pl.alignment = PP_ALIGN.LEFT
-        rl = pl.runs[0]
-        rl.font.size = Pt(label_size)
-        rl.font.bold = True
-        rl.font.color.rgb = RGBColor(255, 255, 255)
+    for i, label in enumerate(labels):
+        para = tf_r.paragraphs[0] if i == 0 else tf_r.add_paragraph()
+        para.alignment = PP_ALIGN.LEFT
 
-        # Right value
-        value_text = values.get(label, "")
-        if not value_text and placeholder_when_empty is not None:
-            value_text = placeholder_when_empty
+        run_label = para.add_run()
+        run_label.text = f"{label}："
+        run_label.font.size = Pt(label_size)
+        run_label.font.bold = True
+        run_label.font.color.rgb = RGBColor(255, 255, 255)
 
-        tb_val = slide.shapes.add_textbox(x_value, current_y, Inches(7.2), Inches(0.6))
-        tfv = tb_val.text_frame
-        tfv.clear()
-        pv = tfv.paragraphs[0]
-        pv.text = value_text
-        pv.alignment = PP_ALIGN.LEFT
-        rv = pv.runs[0]
-        rv.font.size = Pt(value_size)
-        rv.font.bold = False
-        rv.font.color.rgb = RGBColor(255, 255, 255)
+        run_space = para.add_run(); run_space.text = " "
 
-        current_y += row_gap
+        run_val = para.add_run()
+        run_val.text = value_placeholder  # stays empty unless you set a placeholder
+        run_val.font.size = Pt(value_size)
+        run_val.font.bold = False
+        run_val.font.color.rgb = RGBColor(255, 255, 255)
+
+    return slide
+
+def add_community_summary_slide(
+    prs,
+    *,
+    left_lines=("IP粉丝…", "卡牌玩家…"),
+    cn_title="国内玩家",
+    cn_sub="玩家…",
+    intl_title="国外玩家",
+    intl_sub="玩家…",
+    panel_fill=RGBColor(0, 0, 0),
+    ):
+    slide = prs.slides.add_slide(prs.slide_layouts[6])  # blank
+
+    # ---- Left slanted panel (trapezoid) ----
+    # size/position: cover ~40% width, full height; slant via adjustment
+    left = Inches(0.0)
+    top = Inches(0.0)
+    width = Inches(5.2)
+    height = Inches(7.5)  # typical 16:9 slide ~7.5" tall
+
+    shp = slide.shapes.add_shape(MSO_SHAPE.TRAPEZOID, left, top, width, height)
+    # Make the right edge slanted by pulling top width inward (0.0..1.0)
+    try:
+        shp.adjustments[0] = 0.35         # bigger = stronger slant
+    except Exception:
+        pass
+    shp.fill.solid()
+    shp.fill.fore_color.rgb = panel_fill
+    shp.fill.fore_color.brightness = 0  # solid black
+    shp.line.fill.background()          # no border
+
+    # ---- Left panel text (two lines) ----
+    # First line
+    tb1 = slide.shapes.add_textbox(Inches(0.8), Inches(2.0), Inches(3.5), Inches(0.9))
+    tf1 = tb1.text_frame
+    p1 = tf1.paragraphs[0]
+    p1.text = left_lines[0] if len(left_lines) > 0 else ""
+    p1.alignment = PP_ALIGN.LEFT
+    r1 = p1.runs[0]
+    r1.font.size = Pt(28)
+    r1.font.bold = True
+    r1.font.color.rgb = RGBColor(255, 255, 255)
+
+    # Second line
+    tb2 = slide.shapes.add_textbox(Inches(0.8), Inches(3.2), Inches(3.8), Inches(0.9))
+    tf2 = tb2.text_frame
+    p2 = tf2.paragraphs[0]
+    p2.text = left_lines[1] if len(left_lines) > 1 else ""
+    p2.alignment = PP_ALIGN.LEFT
+    r2 = p2.runs[0]
+    r2.font.size = Pt(28)
+    r2.font.bold = True
+    r2.font.color.rgb = RGBColor(255, 255, 255)
+
+    # ---- Right column blocks ----
+    # Common styling helpers
+    def add_block(title, sub, top_in):
+        # Title (bigger)
+        tb_t = slide.shapes.add_textbox(Inches(6.2), top_in, Inches(3.8), Inches(0.9))
+        tf_t = tb_t.text_frame; tf_t.clear()
+        pt = tf_t.paragraphs[0]
+        pt.text = title
+        pt.alignment = PP_ALIGN.LEFT
+        rt = pt.runs[0]
+        rt.font.size = Pt(32)
+        rt.font.bold = True
+        rt.font.color.rgb = RGBColor(255, 255, 255)
+
+        # Sub (smaller, lighter)
+        tb_s = slide.shapes.add_textbox(Inches(6.2), top_in + Inches(0.8), Inches(3.8), Inches(0.7))
+        tf_s = tb_s.text_frame; tf_s.clear()
+        ps = tf_s.paragraphs[0]
+        ps.text = sub
+        ps.alignment = PP_ALIGN.LEFT
+        rs = ps.runs[0]
+        rs.font.size = Pt(20)
+        rs.font.bold = False
+        rs.font.color.rgb = RGBColor(200, 200, 200)
+
+    add_block(cn_title,   cn_sub,   Inches(1.6))
+    add_block(intl_title, intl_sub, Inches(3.8))
 
     return slide
