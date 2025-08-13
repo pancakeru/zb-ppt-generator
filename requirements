@@ -1,9 +1,0 @@
-flask
-gunicorn
-playwright
-beautifulsoup4
-selenium
-requests
-python-pptx
-Pillow
-python-dotenv
