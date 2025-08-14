@@ -102,7 +102,7 @@ def make_ppt(data_list, yt_data, yt_keywords, bb_data, bb_keywords, output_path=
     add_data_slide(yt_data, yt_keywords, prs, "符文战场近10天热门YouTube视频排行榜")
     print("YouTube slide added")
 
-    add_section_slide(prs, "03 竞品动向", ["宝可梦", "航海王", "数码宝贝", "高达卡牌"])
+    add_section_slide(prs, "03 竞品动向", ["宝可梦", "航海王", "高达卡牌"])
     print("Section 3 added")
 
     # === Content Slides ===
@@ -110,7 +110,7 @@ def make_ppt(data_list, yt_data, yt_keywords, bb_data, bb_keywords, output_path=
         fill_from_custom_slide(prs, template_slide, item)
 
     # ---- Products Summary
-    create_top3_slide(prs, ["宝可梦...", "航海王...", "数码宝贝..."])
+    create_top3_slide(prs, ["宝可梦...", "航海王...", "高达..."])
     print("Product summary slide added")
 
     # === Save PPT ===
@@ -161,10 +161,10 @@ def fill_from_custom_slide(prs, template_slide, data):
                             slide.shapes.add_picture(img_stream, shape.left, shape.top, shape.width, shape.height)
                         except ValueError as e:
                             print(f"⚠️ Standard insert failed: {e}, trying webp conversion...")
-                            converted_path = convert_webp_to_png(response.content)
+                            converted_path = fetch_and_prepare_image(response)
                             if converted_path:
                                 slide.shapes.add_picture(converted_path, shape.left, shape.top, shape.width, shape.height)
-                                os.remove(converted_path)  # Cleanup temp png
+                                #os.remove(converted_path)  # Cleanup temp png
                 except Exception as e:
                     print(f"❌ Unexpected error: {e}")
             elif "subtitle" in original_text:
@@ -251,15 +251,40 @@ import requests
 from io import BytesIO
 import os
 
-def convert_webp_to_png(webp_bytes, output_path="temp_image.png"):
+from io import BytesIO
+from PIL import Image
+import requests
+
+def convert_webp_to_png_stream(webp_bytes: bytes) -> BytesIO | None:
+    """Convert WEBP bytes to a PNG byte stream for PPT insertion."""
     try:
-        img = Image.open(BytesIO(webp_bytes))
-        if img.format == "WEBP":
-            img.save(output_path, "PNG")
-            return output_path
+        img = Image.open(BytesIO(webp_bytes)).convert("RGBA")
+        png_stream = BytesIO()
+        img.save(png_stream, format="PNG")
+        png_stream.seek(0)  # reset pointer
+        return png_stream
     except Exception as e:
-        print(f"❌ Conversion failed: {e}")
-    return None
+        print(f"⚠️ Conversion failed: {e}")
+        return None
+
+def fetch_and_prepare_image(url: str) -> BytesIO | None:
+    """Fetch an image URL and ensure it’s in PNG format."""
+    r = requests.get(url, timeout=20)
+    if r.status_code != 200:
+        print(f"⚠️ Failed to fetch image: {url}")
+        return None
+    
+    content_type = r.headers.get("Content-Type", "").lower()
+    data = r.content
+
+    # Convert WEBP to PNG if needed
+    if "webp" in content_type or url.lower().endswith(".webp"):
+        return convert_webp_to_png_stream(data)
+    
+    # For non-WEBP images, just wrap as stream
+    img_stream = BytesIO(data)
+    img_stream.seek(0)
+    return img_stream
 
 def add_data_slide(videos, keywords, prs, header_text):
     slide = prs.slides.add_slide(prs.slide_layouts[5])
