@@ -11,17 +11,17 @@ from scrapers.bilibiliscraper import bili_scraper
 def run_full_job(log: Optional[Callable[[str], None]] = None):
     log = log or (lambda *_: None)
 
-    log("Gathering data... / 正在抓取数据...", 10)
+    log("Gathering data... / 正在抓取数据...")
     print("Gathering data...")
-    updates = get_card_updates(log=log) 
+    updates = get_card_updates() 
 
-    log("Gathering Youtube videos... / 抓取YouTube视频...", 25)
+    log("Gathering Youtube videos... / 抓取YouTube视频...")
     yt_data, yt_keywords = yt_main()
-    log("Gathering BiliBili videos... / 抓取B站视频...", 45)
+    log("Gathering BiliBili videos... / 抓取B站视频...")
     bb_data, bb_keywords = bili_scraper()
  
     #print(f"✅ Retrieved {len(updates)} entries.")
-    log("Building PPT... / 生成PPT...", 70)
+    log("Building PPT... / 生成PPT...")
     #make_ppt([], [], [], [], [])
     #make_ppt(updates, yt_data, yt_keywords, bb_data, bb_keywords)
 

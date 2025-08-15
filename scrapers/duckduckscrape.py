@@ -199,7 +199,7 @@ from scrapers.optcg2 import Scrape_Activities
 from scrapers.gdscraper import news_scraper
 
 #======== return everything ============
-def get_card_updates():
+def get_card_updates(log):
     all_entries = test_site_access("https://www.pokemon.cn/")+ Scrape_Products() + Scrape_Activities() + news_scraper()
     return all_entries
 
