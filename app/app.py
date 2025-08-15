@@ -83,7 +83,7 @@ async def events(job_id: str):
 def download(job_id: str):
     if job_id not in jobs or jobs[job_id]["ppt"] is None:
         return Response(status_code=404)
-    filename = f"25{give_date()}周报.pptx"
+    filename = f"25{give_date()}符文战场周报.pptx"
     cd = f'attachment; filename="weekly_report.pptx"; filename*=UTF-8\'\'{quote(filename)}'
     return Response(
         content=jobs[job_id]["ppt"],

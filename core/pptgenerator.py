@@ -108,6 +108,7 @@ def make_ppt(data_list, yt_data, yt_keywords, bb_data, bb_keywords, log) -> byte
     emit("Section 3 added", 92)
 
     # === Content Slides ===
+    emit("Adding Product slides...", 96)
     for item in data_list:
         fill_from_custom_slide(prs, template_slide, item)
 
@@ -139,7 +140,7 @@ import requests
 from io import BytesIO
 
 def fill_from_custom_slide(prs, template_slide, data):
-    log = log or (lambda *_: None)
+    #log = log or (lambda *_: None)
     # Duplicate the layout
     slide_layout = template_slide.slide_layout
     slide = prs.slides.add_slide(slide_layout)
