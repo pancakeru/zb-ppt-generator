@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Response
 from core.main_job import run_full_job
 from core.pptgenerator import give_date
-from fastaoi.responses import HTMLResponse, Response
+from fastapi.responses import HTMLResponse, Response
 from pathlib import Path
 
 app = FastAPI()
