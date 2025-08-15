@@ -4,9 +4,11 @@ from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 from datetime import datetime
 import time
+from typing import Optional, Callable
 
 def Scrape_Products():
-    print("Scraping One Piece Products...")
+    #log("Scraping One Piece Products... / 抓取航海王商品...")
+    print("Scraping One Piece products...")
     results = []
 # --- Setup ---
     options = Options()
@@ -34,7 +36,7 @@ def Scrape_Products():
 
     # --- Loop and extract --- on the products page
     starting_id = len(items)
-    print(f"✅ Total products found: {starting_id}\n")
+    print(f"One Piece: {starting_id} new entries / 航海王: {starting_id}新商品")
 
     for i, item in enumerate(items):
         title_tag = item.find("div", class_="proName")
@@ -72,7 +74,7 @@ def Scrape_Products():
             "image": img_src,
             "info": info_text
         }
-        print(type(entry))
+        #print(type(entry))
         results.append(entry)
 
     for entry in results:
@@ -95,7 +97,8 @@ def Scrape_Products():
     return results
 
 def Scrape_Activities():
-    print("Scraping One Piece Activities...")
+    #log("Scraping One Piece Activities... / 抓取航海王活动...")
+    print("Scraping One Piece activities...")
     results = []
 # --- Setup ---
     options = Options()
@@ -116,7 +119,7 @@ def Scrape_Activities():
 
     # --- Loop and extract --- on the products page
     starting_id = len(items)
-    print(f"✅ Total products found: {starting_id}\n")
+    #log(f"One Piece: {starting_id} new activities / 航海王：{starting_id}新活动")
 
     for i, item in enumerate(items):
         title_tag = item.find("div", class_="actName")
@@ -153,7 +156,7 @@ def Scrape_Activities():
             "image": img_src,
             "info": info_text
         }
-        print(type(entry))
+        #print(type(entry))
         results.append(entry)
 
     for entry in results:

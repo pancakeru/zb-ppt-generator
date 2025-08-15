@@ -1,9 +1,13 @@
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+from typing import Optional, Callable
 
 #======= Pokemon =============
 def test_site_access(url):
+
+    #log("Scraping Pokemon... / 抓取宝可梦...")
+    print("Scraping Pokemon...")
     poke_updates = []
 
     headers = {
@@ -34,7 +38,7 @@ def test_site_access(url):
                 print("⚠️ Could not find <ul class='card-list__body'>")
                 return
             cards = soup.select("li.card__element")
-            print(f"Found {len(cards)} card entries.")
+            #log(f"Pokemon: {len(cards)} new entries / 宝可梦：{len(cards)}新文件")
 
             for card in cards:
                 link_tag = card.find("a")
@@ -185,16 +189,3 @@ def extract_info_text(url, content_type):
     except Exception as e:
         print(f"❌ Error scraping {url}: {e}")
         return None
-
-# ======= One Piece ========
-from scrapers.optcg2 import Scrape_Products
-from scrapers.optcg2 import Scrape_Activities
-
-# ======= Gundam =========
-from scrapers.gdscraper import news_scraper
-
-#======== return everything ============
-def get_card_updates():
-    all_entries = test_site_access("https://www.pokemon.cn/")+ Scrape_Products() + Scrape_Activities() + news_scraper()
-    return all_entries
-
