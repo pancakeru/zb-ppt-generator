@@ -4,9 +4,12 @@ from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 from datetime import datetime
 import time
+from typing import Optional, Callable
 
-def news_scraper():
-    print("Scraping Gundam Latest News...")
+def news_scraper(log: Optional[Callable[[str], None]] = None):
+    log = log or (lambda *_: None)
+    log("Scraping Gundam... / 抓取高达...")
+    print("Scraping Gundam...")
     results = []
 
     now = datetime.now()
@@ -86,6 +89,7 @@ def news_scraper():
 
     driver.quit()
     #print(results)
+    log(f"Gundam: {len(results)} new entries / 高达：{len(results)}新文件")
     return results
 
 #news_scraper()

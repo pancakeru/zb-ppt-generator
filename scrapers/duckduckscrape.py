@@ -1,9 +1,14 @@
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+from typing import Optional, Callable
 
 #======= Pokemon =============
-def test_site_access(url):
+def test_site_access(url, log: Optional[Callable[[str], None]] = None):
+    log = log or (lambda *_: None)
+
+    log("Scraping Pokemon... / 抓取宝可梦...")
+    print("Scraping Pokemon...")
     poke_updates = []
 
     headers = {
@@ -34,7 +39,7 @@ def test_site_access(url):
                 print("⚠️ Could not find <ul class='card-list__body'>")
                 return
             cards = soup.select("li.card__element")
-            print(f"Found {len(cards)} card entries.")
+            log(f"Pokemon: {len(cards)} new entries / 宝可梦：{len(cards)}新文件")
 
             for card in cards:
                 link_tag = card.find("a")
