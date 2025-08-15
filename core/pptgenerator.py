@@ -29,7 +29,7 @@ international_labels = ["X/Twitter", "Discord", "Facebook", "YouTube", "Instagra
 def give_date():
     return date_range_str
 
-def make_ppt(data_list, yt_data, yt_keywords, bb_data, bb_keywords, output_path=f"/Users/zoe.chow/Desktop/ai-test/25{date_range_str}符文战场周报.pptx"):
+def make_ppt(data_list, yt_data, yt_keywords, bb_data, bb_keywords):
     prs = Presentation()
     prs.slide_width = template.slide_width
     prs.slide_height = template.slide_height
@@ -154,17 +154,23 @@ def fill_from_custom_slide(prs, template_slide, data):
             original_text = shape.text.strip().lower()
             if "insert image" in original_text and data.get("image"):
                 try:
-                    response = requests.get(data["image"])
+                    response = requests.get(data["image"], timeout=20)
                     if response.status_code == 200:
-                        try:
-                            img_stream = BytesIO(response.content)
-                            slide.shapes.add_picture(img_stream, shape.left, shape.top, shape.width, shape.height)
-                        except ValueError as e:
-                            print(f"⚠️ Standard insert failed: {e}, trying webp conversion...")
-                            converted_path = fetch_and_prepare_image(response)
-                            if converted_path:
-                                slide.shapes.add_picture(converted_path, shape.left, shape.top, shape.width, shape.height)
-                                #os.remove(converted_path)  # Cleanup temp png
+                        # decide whether we must convert
+                        ct = (response.headers.get("Content-Type") or "").lower()
+                        img_bytes = response.content
+
+                        if "webp" in ct or (img_bytes[:4] == b"RIFF" and img_bytes[8:12] == b"WEBP"):
+                            # convert webp bytes → PNG stream
+                            png_stream = convert_webp_to_png_stream(img_bytes)
+                            if png_stream:
+                                slide.shapes.add_picture(png_stream, shape.left, shape.top, shape.width, shape.height)
+                            else:
+                                print("⚠️ Skipping image: WEBP conversion failed.")
+                        else:
+                            # non-WEBP: use bytes directly
+                            stream = BytesIO(img_bytes); stream.seek(0)
+                            slide.shapes.add_picture(stream, shape.left, shape.top, shape.width, shape.height)
                 except Exception as e:
                     print(f"❌ Unexpected error: {e}")
             elif "subtitle" in original_text:
@@ -250,41 +256,18 @@ from PIL import Image
 import requests
 from io import BytesIO
 import os
+from typing import Optional
 
-from io import BytesIO
-from PIL import Image
-import requests
-
-def convert_webp_to_png_stream(webp_bytes: bytes) -> BytesIO | None:
-    """Convert WEBP bytes to a PNG byte stream for PPT insertion."""
+def convert_webp_to_png_stream(webp_bytes):
     try:
         img = Image.open(BytesIO(webp_bytes)).convert("RGBA")
-        png_stream = BytesIO()
-        img.save(png_stream, format="PNG")
-        png_stream.seek(0)  # reset pointer
-        return png_stream
+        out = BytesIO()
+        img.save(out, format="PNG")
+        out.seek(0)
+        return out
     except Exception as e:
-        print(f"⚠️ Conversion failed: {e}")
+        print(f"⚠️ WEBP→PNG failed: {e}")
         return None
-
-def fetch_and_prepare_image(url: str) -> BytesIO | None:
-    """Fetch an image URL and ensure it’s in PNG format."""
-    r = requests.get(url, timeout=20)
-    if r.status_code != 200:
-        print(f"⚠️ Failed to fetch image: {url}")
-        return None
-    
-    content_type = r.headers.get("Content-Type", "").lower()
-    data = r.content
-
-    # Convert WEBP to PNG if needed
-    if "webp" in content_type or url.lower().endswith(".webp"):
-        return convert_webp_to_png_stream(data)
-    
-    # For non-WEBP images, just wrap as stream
-    img_stream = BytesIO(data)
-    img_stream.seek(0)
-    return img_stream
 
 def add_data_slide(videos, keywords, prs, header_text):
     slide = prs.slides.add_slide(prs.slide_layouts[5])
