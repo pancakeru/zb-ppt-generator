@@ -1,8 +1,15 @@
 from fastapi import FastAPI, Response
 from core.main_job import run_full_job
 from core.pptgenerator import give_date
+from fastaoi.responses import HTMLResponse, Response
+from pathlib import Path
 
 app = FastAPI()
+
+@app.get("/", response_class=HTMLResponse)
+def home():
+    html_path = Path(__file__).parent.parent / "templates" / "index.html"
+    return html_path.read_text(encoding="utf-8")
 
 @app.get("/healthz")
 def health():
