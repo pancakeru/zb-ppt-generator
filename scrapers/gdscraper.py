@@ -89,7 +89,7 @@ def news_scraper():
 
     driver.quit()
     #print(results)
-    log(f"Gundam: {len(results)} new entries / 高达：{len(results)}新文件")
+    #log(f"Gundam: {len(results)} new entries / 高达：{len(results)}新文件")
     return results
 
 #news_scraper()

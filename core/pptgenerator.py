@@ -8,7 +8,7 @@ from pptx.enum.shapes import MSO_SHAPE
 from io import BytesIO
 from core.config import PPT_TEMPLATE_PATH
 from typing import Optional, Callable
-from core.util import emit
+from core.util import emit, set_progress_logger
 
 template = Presentation(str(PPT_TEMPLATE_PATH))
 
@@ -31,7 +31,7 @@ international_labels = ["X/Twitter", "Discord", "Facebook", "YouTube", "Instagra
 def give_date():
     return date_range_str
 
-def make_ppt(data_list, yt_data, yt_keywords, bb_data, bb_keywords) -> bytes:
+def make_ppt(data_list, yt_data, yt_keywords, bb_data, bb_keywords, log) -> bytes:
     prs = Presentation()
     prs.slide_width = template.slide_width
     prs.slide_height = template.slide_height

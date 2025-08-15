@@ -42,7 +42,7 @@ async def _run(job_id: str):
     try:
         set_progress_logger(log)                     # <-- KEY LINE
         emit("Starting… / 正在启动…", 2)
-        ppt_bytes = await asyncio.to_thread(run_full_job, log)  # no need to pass log now
+        ppt_bytes = await asyncio.to_thread(run_full_job, log)  
         jobs[job_id]["ppt"] = ppt_bytes
         emit("Done! Preparing download… / 完成，准备下载…", 100)
     except Exception as e:
