@@ -9,6 +9,7 @@ from fastapi.responses import HTMLResponse, Response, StreamingResponse
 from core.main_job import run_full_job 
 from core.pptgenerator import give_date  
 from typing import Optional, Dict, Any
+from core.util import set_progress_logger, emit
 
 app = FastAPI()
 
@@ -29,22 +30,23 @@ def health():
 # ----------------------------
 # Simple in-memory store (fine for one process)
 jobs: Dict[str, Dict[str, Any]] = {}  # job_id -> {"q": asyncio.Queue, "done": asyncio.Event, "ppt": bytes|None}
-def _emit(job_id: str, msg: str, pct: Optional[int] = None) -> None:
-    """Push 'pct|message' to client; pct can be None."""
-    line = f"{'' if pct is None else pct}|{msg}"
-    jobs[job_id]["q"].put_nowait(line)
+def make_logger(job_id: str):
+    loop = asyncio.get_running_loop()
+    def log(msg: str, pct: Optional[int] = None):
+        line = f"{'' if pct is None else pct}|{msg}"
+        loop.call_soon_threadsafe(jobs[job_id]["q"].put_nowait, line)
+    return log
 
 async def _run(job_id: str):
     log = make_logger(job_id)
     try:
-        # High-level milestones (adjust as you like)
-        _emit(job_id, "Starting… / 正在启动…", 2)
-        ppt_bytes = run_full_job(log=log)  # <- your prints appear on page
+        set_progress_logger(log)                     # <-- KEY LINE
+        emit("Starting… / 正在启动…", 2)
+        ppt_bytes = await asyncio.to_thread(run_full_job, log)  # no need to pass log now
         jobs[job_id]["ppt"] = ppt_bytes
-
-        _emit(job_id, "Done! Preparing download… / 完成，准备下载…", 100)
+        emit("Done! Preparing download… / 完成，准备下载…", 100)
     except Exception as e:
-        _emit(job_id, f"❌ Error: {e}")
+        emit(f"❌ Error: {e}")
     finally:
         jobs[job_id]["done"].set()
 
@@ -91,14 +93,3 @@ def download(job_id: str):
 
 from typing import Optional, Dict, Any, Callable
 # … your existing imports …
-
-def make_logger(job_id: str) -> Callable[[str, Optional[int]], None]:
-    """Send a message to SSE + echo to server console."""
-    def _log(msg: str, pct: Optional[int] = None) -> None:
-        try:
-            # UI
-            _emit(job_id, str(msg), pct)
-        finally:
-            # Console (immediate flush so you see it live)
-            print(str(msg), flush=True)
-    return _log

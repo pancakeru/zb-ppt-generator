@@ -6,9 +6,8 @@ from datetime import datetime
 import time
 from typing import Optional, Callable
 
-def Scrape_Products(log: Optional[Callable[[str], None]] = None):
-    log = log or (lambda *_: None)
-    log("Scraping One Piece Products... / 抓取航海王商品...")
+def Scrape_Products():
+    #log("Scraping One Piece Products... / 抓取航海王商品...")
     print("Scraping One Piece products...")
     results = []
 # --- Setup ---
@@ -97,9 +96,8 @@ def Scrape_Products(log: Optional[Callable[[str], None]] = None):
     #print(results)
     return results
 
-def Scrape_Activities(log: Optional[Callable[[str], None]] = None):
-    log = log or (lambda *_: None)
-    log("Scraping One Piece Activities... / 抓取航海王活动...")
+def Scrape_Activities():
+    #log("Scraping One Piece Activities... / 抓取航海王活动...")
     print("Scraping One Piece activities...")
     results = []
 # --- Setup ---
@@ -121,7 +119,7 @@ def Scrape_Activities(log: Optional[Callable[[str], None]] = None):
 
     # --- Loop and extract --- on the products page
     starting_id = len(items)
-    log(f"One Piece: {starting_id} new activities / 航海王：{starting_id}新活动")
+    #log(f"One Piece: {starting_id} new activities / 航海王：{starting_id}新活动")
 
     for i, item in enumerate(items):
         title_tag = item.find("div", class_="actName")

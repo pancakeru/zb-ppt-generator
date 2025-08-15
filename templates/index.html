@@ -61,6 +61,8 @@
     }
     .kbd{padding:.1rem .4rem; border:1px solid #303644; border-bottom-width:2px; border-radius:6px; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background:#12141a; color:#cbd2e1}
     .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+    a:link {color: #7c9cff;}
+    a:visited{color: #7c9cff;}
   </style>
 </head>
 <body>
@@ -90,7 +92,7 @@
       </div>
 
       <div class="footer">
-        <div>Progress: <span id="progress">Idle</span></div>
+        <div>Source code: <span id="progress"><a href="https://github.com/pancakeru/zb-ppt-generator">zb-ppt-generator</a></span></div>
         <div>Filename uses the week range, e.g. <span class="mono">250803-0809周报.pptx</span></div>
       </div>
     </section>
@@ -119,6 +121,7 @@ goBtn.addEventListener('click', async () => {
     const es = new EventSource(`/events/${job_id}`);
     es.onmessage = (e) => {
       // server sends "pct|message" OR "|message"
+      console.log("SSE Raw: ", e.data);
       const line = e.data || '';
       const sep = line.indexOf('|');
       let pct = null, msg = line;

@@ -8,6 +8,7 @@ from pptx.enum.shapes import MSO_SHAPE
 from io import BytesIO
 from core.config import PPT_TEMPLATE_PATH
 from typing import Optional, Callable
+from core.util import emit
 
 template = Presentation(str(PPT_TEMPLATE_PATH))
 
@@ -30,7 +31,7 @@ international_labels = ["X/Twitter", "Discord", "Facebook", "YouTube", "Instagra
 def give_date():
     return date_range_str
 
-def make_ppt(data_list, yt_data, yt_keywords, bb_data, bb_keywords, log: Optional[Callable[[str], None]] = None):
+def make_ppt(data_list, yt_data, yt_keywords, bb_data, bb_keywords) -> bytes:
     prs = Presentation()
     prs.slide_width = template.slide_width
     prs.slide_height = template.slide_height
@@ -66,11 +67,11 @@ def make_ppt(data_list, yt_data, yt_keywords, bb_data, bb_keywords, log: Optiona
     subtitle_run.font.name = 'Georgia'
     subtitle_run.font.color.rgb = RGBColor(255, 0, 0)
 
-    log("Title slide added")
+    emit("Title slide added", 75)
 
     # ---Section header
     add_section_slide(prs, "01 社群讨论", ["国内玩家", "国外玩家", "总结"])
-    log("Section 1 added")
+    emit("Section 1 added", 78)
 
     # --- Community slides
     add_social_summary_slide(
@@ -78,13 +79,13 @@ def make_ppt(data_list, yt_data, yt_keywords, bb_data, bb_keywords, log: Optiona
         "国内玩家：",
         domestic_labels
     )
-    log("Domestic slide added")
+    emit("Domestic slide added", 80)
     add_social_summary_slide(
         prs,
         "国外玩家：",
         international_labels
     )
-    log("International slide added")
+    emit("International slide added", 82)
     add_community_summary_slide(
         prs,
         left_lines=("IP粉丝...", "卡牌玩家..."),
@@ -93,26 +94,26 @@ def make_ppt(data_list, yt_data, yt_keywords, bb_data, bb_keywords, log: Optiona
         intl_title="国外玩家",
         intl_sub="玩家...",
     )
-    log("Community Summary slide added")
+    emit("Community Summary slide added", 85)
 
     # ---- YouTube and BiliBili
     add_section_slide(prs, "02 视频热度", ["B站", "YouTube"])
-    log("Section 2 added")
+    emit("Section 2 added", 87)
     add_data_slide(bb_data, bb_keywords, prs, "符文战场近10天热门B站视频排行榜")
-    log("BiliBili slide added")
+    emit("BiliBili slide added", 88)
     add_data_slide(yt_data, yt_keywords, prs, "符文战场近10天热门YouTube视频排行榜")
-    log("YouTube slide added")
+    emit("YouTube slide added", 90)
 
     add_section_slide(prs, "03 竞品动向", ["宝可梦", "航海王", "高达卡牌"])
-    log("Section 3 added")
+    emit("Section 3 added", 92)
 
     # === Content Slides ===
-    for i, item in enumerate(data_list):
-        fill_from_custom_slide(prs, template_slide, item, i)
+    for item in data_list:
+        fill_from_custom_slide(prs, template_slide, item)
 
     # ---- Products Summary
     create_top3_slide(prs, ["宝可梦...", "航海王...", "高达..."])
-    log("Product summary slide added")
+    emit("Product summary slide added", 99)
 
     # === Save PPT ===
     ppt_bytes= BytesIO()
@@ -137,7 +138,7 @@ def download_and_insert_image(image_url, slide, left, top, width=None, height=No
 import requests
 from io import BytesIO
 
-def fill_from_custom_slide(prs, template_slide, data, i, log: Optional[Callable[[str], None]] = None):
+def fill_from_custom_slide(prs, template_slide, data):
     log = log or (lambda *_: None)
     # Duplicate the layout
     slide_layout = template_slide.slide_layout
@@ -218,8 +219,7 @@ def fill_from_custom_slide(prs, template_slide, data, i, log: Optional[Callable[
                 run.font.bold = True
             else:
                 new_shape.text_frame.text = ""
-    log(f"Product slide #{i+1} added")
-    print(f"Product slide #{i+1} added")
+    print(f"Product slide added")
     return slide
 
 def add_section_slide(prs, header_text, side_list):

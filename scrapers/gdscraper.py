@@ -6,9 +6,9 @@ from datetime import datetime
 import time
 from typing import Optional, Callable
 
-def news_scraper(log: Optional[Callable[[str], None]] = None):
-    log = log or (lambda *_: None)
-    log("Scraping Gundam... / 抓取高达...")
+def news_scraper():
+    #log = log or (lambda *_: None)
+    #log("Scraping Gundam... / 抓取高达...")
     print("Scraping Gundam...")
     results = []
 

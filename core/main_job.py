@@ -1,6 +1,6 @@
 from scrapers.duckduckscrape import get_card_updates
 from core.pptgenerator import make_ppt
-from typing import Callable, Optional
+from core.util import emit, set_progress_logger
 
 # ======= YouTube ========
 from scrapers.youtube_scraper import yt_main
@@ -8,20 +8,20 @@ from scrapers.youtube_scraper import yt_main
 #====== Bilibili =======
 from scrapers.bilibiliscraper import bili_scraper
 
-def run_full_job(log: Optional[Callable[[str], None]] = None):
-    log = log or (lambda *_: None)
+def run_full_job(log) -> bytes:
+    set_progress_logger(log)
 
-    log("Gathering data... / 正在抓取数据...")
-    print("Gathering data...")
-    updates = get_card_updates() 
+    emit("Gathering data... / 正在抓取数据...", 5)
+    #print("Gathering data...")
+    updates = get_card_updates(log) 
 
-    log("Gathering Youtube videos... / 抓取YouTube视频...")
+    emit("Gathering Youtube videos... / 抓取YouTube视频...", 50)
     yt_data, yt_keywords = yt_main()
-    log("Gathering BiliBili videos... / 抓取B站视频...")
+    emit("Gathering BiliBili videos... / 抓取B站视频...", 60)
     bb_data, bb_keywords = bili_scraper()
  
     #print(f"✅ Retrieved {len(updates)} entries.")
-    log("Building PPT... / 生成PPT...")
+    emit("Building PPT... / 生成PPT...", 70)
     #make_ppt([], [], [], [], [])
     #make_ppt(updates, yt_data, yt_keywords, bb_data, bb_keywords)
 

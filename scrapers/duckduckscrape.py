@@ -4,10 +4,9 @@ from datetime import datetime
 from typing import Optional, Callable
 
 #======= Pokemon =============
-def test_site_access(url, log: Optional[Callable[[str], None]] = None):
-    log = log or (lambda *_: None)
+def test_site_access(url):
 
-    log("Scraping Pokemon... / 抓取宝可梦...")
+    #log("Scraping Pokemon... / 抓取宝可梦...")
     print("Scraping Pokemon...")
     poke_updates = []
 
@@ -39,7 +38,7 @@ def test_site_access(url, log: Optional[Callable[[str], None]] = None):
                 print("⚠️ Could not find <ul class='card-list__body'>")
                 return
             cards = soup.select("li.card__element")
-            log(f"Pokemon: {len(cards)} new entries / 宝可梦：{len(cards)}新文件")
+            #log(f"Pokemon: {len(cards)} new entries / 宝可梦：{len(cards)}新文件")
 
             for card in cards:
                 link_tag = card.find("a")
@@ -199,7 +198,47 @@ from scrapers.optcg2 import Scrape_Activities
 from scrapers.gdscraper import news_scraper
 
 #======== return everything ============
-def get_card_updates(log):
-    all_entries = test_site_access("https://www.pokemon.cn/")+ Scrape_Products() + Scrape_Activities() + news_scraper()
-    return all_entries
+from core.util import set_progress_logger, emit
 
+def get_card_updates(log):
+    set_progress_logger(log)
+    combined = []
+
+    steps = [
+        ("Pokemon / 宝可梦", test_site_access("https://www.pokemon.cn/"), 10),
+        ("One Piece Products / 航海王商品", Scrape_Products(), 20),
+        ("One Piece Activities / 航海王活动", Scrape_Activities(), 30),
+        ("Gundam / 高达", news_scraper(), 40)
+    ]
+
+    for label, fn, pct in steps:
+        emit(f"Fetching {label}…", pct)
+        try:
+            data = fn()
+            chunk = _flatten(data)
+            # (optional) tag the source so slides can group/filter later
+            for item in chunk:
+                item.setdefault("source", label)
+            combined.extend(chunk)
+            #emit(f"✓ {label} done: {len(chunk)} items.", pct)
+        except Exception as e:
+            emit(f"✗ {label} failed: {e}", pct)
+
+    return combined
+
+def _flatten(payload):
+    """Turn scraper output into a list[dict]. Supports list, dict (or dict of lists), None."""
+    if payload is None:
+        return []
+    if isinstance(payload, list):
+        return [x for x in payload if isinstance(x, dict)]
+    if isinstance(payload, dict):
+        # if it's a dict of lists, pull the lists; else treat the dict as one item
+        got_list = False
+        out = []
+        for v in payload.values():
+            if isinstance(v, list):
+                out.extend([x for x in v if isinstance(x, dict)])
+                got_list = True
+        return out if got_list else [payload]
+    return []
