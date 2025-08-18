@@ -1,4 +1,3 @@
-#README
 A web app made as a tool during an internship in Shanghai, China. 
 The app scrapes relevant data within the last week from several TCG websites, gathers video information from YouTube and BiliBili, then generates a presentation file with the compiled data.
 
