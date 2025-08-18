@@ -15,7 +15,7 @@ def Scrape_Products():
     options.add_argument("--headless")
     driver = webdriver.Chrome(options=options)
     driver.get("https://onepiece-cardgame.cn/products")
-    time.sleep(5)
+    time.sleep(4)
 
     # --- Parse page ---
     soup = BeautifulSoup(driver.page_source, "html.parser")
@@ -105,7 +105,7 @@ def Scrape_Activities():
     options.add_argument("--headless")
     driver = webdriver.Chrome(options=options)
     driver.get("https://onepiece-cardgame.cn/activity")
-    time.sleep(5)
+    time.sleep(3)
 
     # --- Parse page ---
     soup = BeautifulSoup(driver.page_source, "html.parser")
