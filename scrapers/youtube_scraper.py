@@ -20,7 +20,7 @@ YOUTUBE_SEARCH_URL = "https://www.googleapis.com/youtube/v3/search"
 YOUTUBE_VIDEOS_URL = "https://www.googleapis.com/youtube/v3/videos"
 QUERY = "riftbound"
 MAX_RESULTS = 20 
-DAYS_LIMIT = 10
+DAYS_LIMIT = 7
 
 def get_recent_video_ids():
     published_after = (datetime.utcnow() - timedelta(days=DAYS_LIMIT)).isoformat("T") + "Z"

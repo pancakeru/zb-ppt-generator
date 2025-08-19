@@ -99,9 +99,9 @@ def make_ppt(data_list, yt_data, yt_keywords, bb_data, bb_keywords, log) -> byte
     # ---- YouTube and BiliBili
     add_section_slide(prs, "02 视频热度", ["B站", "YouTube"])
     emit("Section 2 added", 87)
-    add_data_slide(bb_data, bb_keywords, prs, "符文战场近10天热门B站视频排行榜")
+    add_data_slide(bb_data, bb_keywords, prs, "符文战场近7天热门B站视频排行榜")
     emit("BiliBili slide added", 88)
-    add_data_slide(yt_data, yt_keywords, prs, "符文战场近10天热门YouTube视频排行榜")
+    add_data_slide(yt_data, yt_keywords, prs, "符文战场近7天热门YouTube视频排行榜")
     emit("YouTube slide added", 90)
 
     add_section_slide(prs, "03 竞品动向", ["宝可梦", "航海王", "高达卡牌"])
